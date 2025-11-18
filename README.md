@@ -17,7 +17,8 @@ PokemonDataSource(
     private val _pokemon: MutableList<Pokemon> = mutableListOf()
     private val _pokemonFlow: Flow<List<Pokemon>> = MutableSharedFlow<List<Pokemon>>
     override suspend fun observe(): Flow<List<Pokemon>>{
-        return _pokemonFlow
+        _pokemon.addAll(pokemonList)
+        _pokemonFlow.emit(_pokemon.toList)
     }
     override suspend fun readAll(): Pokemon?{
         return _pokemon
@@ -26,6 +27,10 @@ PokemonDataSource(
         return _pokemon.firstOrNull {
             pokemon -> pokemon.id == id
         }
+    }
+    private suspend fun refresh(){
+        val remotePokemon = remoteDataSource.readAll()
+        localDataSource.addAll(remotePokemon)
     }
 )
 ```
