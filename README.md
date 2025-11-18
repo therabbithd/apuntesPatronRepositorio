@@ -66,3 +66,16 @@ override suspend fun readAll(): List<Pokemon> {
     }
 }
 ```
+### Observe
+```kotlin
+override fun observe(): Flow<List<Pokemon>> {
+    return flow {
+        emit(listOf<Pokemon>())
+        emit(readAll())
+    }.shareIn(
+        scope = scope
+        started = SharingStarted.WhileSubscribed(5_000L)
+        replay = 1
+    )
+}
+```
