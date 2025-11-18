@@ -14,11 +14,18 @@ flowchart TD
 ```kotlin
 class PokemonLocalDataSource @Inject constructor():
 PokemonDataSource(
+    private val _pokemon: MutableList<Pokemon> = mutableListOf()
+    private val _pokemonFlow: Flow<List<Pokemon>> = MutableSharedFlow<List<Pokemon>>
+    override suspend fun observe(): Flow<List<Pokemon>>{
+        return _pokemonFlow
+    }
     override suspend fun readAll(): Pokemon?{
-        return datasource.readAll()
+        return _pokemon
     }
     override suspend fun readOne(id:long): Pokemon?{
-        return datasource.readOne()
+        return _pokemon.firstOrNull {
+            pokemon -> pokemon.id == id
+        }
     }
 )
 ```
@@ -78,4 +85,35 @@ override fun observe(): Flow<List<Pokemon>> {
         replay = 1
     )
 }
+```
+## Repositorio
+### Interfaz
+```kotlin
+interface PokemonRepository{
+    suspend fun readOne(id:Long): Pokemon?
+    suspend fun readAll():List<Pokemon>
+    fun observe():Flow<List<Pokemon>>
+}
+```
+### Implementacion
+```kotlin
+class PokemonRepositoryImpl @Inject constructor(
+    @RemoteDataSource private val remoteDataSource
+    @LocalDataSource private val LocalDataSource
+):
+    override suspend fun readOne(id: Long): Pokemon? {
+        return remoteDataSource
+    }
+    override suspend fun readAll(): List<Pokemon>{
+        return remoteDataSource.readAll()
+    }
+    override fun observe(): Flow<List<Pokemon>>{
+        scope.launch{
+            refresh()
+        }
+        return localDataSource.observe()
+    }
+    private suspend fun refresh(){
+        TODO("No hecho")
+    }
 ```
