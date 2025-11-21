@@ -91,6 +91,18 @@ override fun observe(): Flow<List<Pokemon>> {
     )
 }
 ```
+### ReadOne
+```kotlin
+private suspend fun readOne(name: String):Pokemon? {
+    val response = api.readOne(name)
+    return if (response.isSuccesful){
+        response.body()!!.toExternal()
+    } else {
+        null
+    }
+
+}
+```
 ## Repositorio
 ### Interfaz
 ```kotlin
