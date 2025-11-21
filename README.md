@@ -83,6 +83,7 @@ override suspend fun readAll(): List<Pokemon> {
 override fun observe(): Flow<List<Pokemon>> {
     return flow {
         emit(listOf<Pokemon>())
+        val result = ReadAll()
         emit(readAll())
     }.shareIn(
         scope = scope
@@ -133,4 +134,29 @@ class PokemonRepositoryImpl @Inject constructor(
     private suspend fun refresh(){
         TODO("No hecho")
     }
+```
+## ListScreen
+### UiState
+```kotlin
+fun PokemonListScreen(
+    modifier: Modifier = Modifier,
+    viewModel : PokemonListViewModel = hiltViewModel
+    onShowDetail:(Long)->Unit
+) {
+    val uiState by viewModel.uiState.collectAsState()
+    when(uiState){
+        is ListUiState.Initial -> {
+
+        }
+        is ListUiState.Loading -> {
+            PokemonLoadingScreen(modifier)
+        }
+        is ListUiState.Success -> {
+            PokemonList(modifier,uiState,onShowDetail)
+        }
+        is ListUiState.Error -> {
+            PokemonError(modifier)
+        }
+    }
+}
 ```
